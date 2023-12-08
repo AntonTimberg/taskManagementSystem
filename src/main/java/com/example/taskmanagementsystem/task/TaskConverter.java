@@ -2,13 +2,15 @@ package com.example.taskmanagementsystem.task;
 
 import com.example.taskmanagementsystem.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TaskConverter {
 
     @Autowired
     private UserService userService;
 
-    public TaskDto toDto(Task task) {
+    public TaskDto convert(Task task) {
         TaskDto dto = new TaskDto();
         dto.setId(task.getId());
         dto.setTitle(task.getTitle());
@@ -20,7 +22,7 @@ public class TaskConverter {
         return dto;
     }
 
-    public Task fromDto(TaskDto dto) {
+    public Task convert(TaskDto dto) {
         Task task = new Task();
         task.setTitle(dto.getTitle());
         task.setDescription(dto.getDescription());
@@ -29,6 +31,17 @@ public class TaskConverter {
         }
         if (dto.getAssigneeEmail() != null) {
             task.setAssignee(userService.getUserByEmail(dto.getAssigneeEmail()).orElse(null));
+        }
+        if (dto.getStatus() != null) {
+            task.setStatus(TaskStatus.valueOf(dto.getStatus()));
+        } else {
+            task.setStatus(TaskStatus.PENDING);
+        }
+
+        if (dto.getPriority() != null) {
+            task.setPriority(TaskPriority.valueOf(dto.getPriority()));
+        } else {
+            task.setPriority(TaskPriority.LOW);
         }
         return task;
     }

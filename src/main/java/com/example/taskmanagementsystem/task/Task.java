@@ -1,6 +1,8 @@
 package com.example.taskmanagementsystem.task;
 
+import com.example.taskmanagementsystem.commentary.Commentary;
 import com.example.taskmanagementsystem.user.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -8,6 +10,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+
+import javax.xml.stream.events.Comment;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Task {
@@ -27,6 +34,9 @@ public class Task {
 
     @ManyToOne
     private User assignee;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Commentary> comments = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -82,5 +92,13 @@ public class Task {
 
     public void setAssignee(User assignee) {
         this.assignee = assignee;
+    }
+
+    public List<Commentary> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Commentary> comments) {
+        this.comments = comments;
     }
 }

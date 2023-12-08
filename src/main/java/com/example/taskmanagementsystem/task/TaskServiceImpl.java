@@ -1,42 +1,64 @@
 package com.example.taskmanagementsystem.task;
 
+import com.example.taskmanagementsystem.commentary.Commentary;
+import com.example.taskmanagementsystem.commentary.CommentaryDto;
+import com.example.taskmanagementsystem.commentary.CommentaryRepo;
 import com.example.taskmanagementsystem.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class TaskServiceImpl implements TaskService{
+public class TaskServiceImpl implements TaskService {
     @Autowired
     private TaskRepo taskRepository;
+    @Autowired
+    private CommentaryRepo commentaryRepo;
 
     public Task createTask(Task task) {
         return taskRepository.save(task);
     }
 
+    @Override
     public Task updateTask(Long taskId, Task taskDetails) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with id " + taskId));
-        task.setTitle(taskDetails.getTitle());
-        task.setDescription(taskDetails.getDescription());
-        task.setStatus(taskDetails.getStatus());
-        task.setPriority(taskDetails.getPriority());
-        task.setAssignee(taskDetails.getAssignee());
+        if (taskDetails.getTitle() != null) {
+            task.setTitle(taskDetails.getTitle());
+        }
+        if (taskDetails.getDescription() != null) {
+            task.setDescription(taskDetails.getDescription());
+        }
+        if (taskDetails.getStatus() != null) {
+            task.setStatus(taskDetails.getStatus());
+        }
+        if (taskDetails.getPriority() != null) {
+            task.setPriority(taskDetails.getPriority());
+        }
+        if (taskDetails.getAssignee() != null) {
+            task.setAssignee(taskDetails.getAssignee());
+        }
         return taskRepository.save(task);
     }
 
+    @Override
     public Task getTaskById(Long taskId) {
         return taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with id " + taskId));
     }
 
+    @Override
     public void deleteTask(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with id " + taskId));
         taskRepository.delete(task);
     }
 
+    @Override
     public Task updateTaskStatus(Long taskId, TaskStatus status) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with id " + taskId));
@@ -44,6 +66,7 @@ public class TaskServiceImpl implements TaskService{
         return taskRepository.save(task);
     }
 
+    @Override
     public Task assignTask(Long taskId, User assignee) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with id " + taskId));
@@ -51,7 +74,15 @@ public class TaskServiceImpl implements TaskService{
         return taskRepository.save(task);
     }
 
+    @Override
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
+    }
+
+    @Override
+    public Page<Commentary> getCommentsForTask(Long taskId, Pageable pageable) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found with id " + taskId));
+        return commentaryRepo.findByTaskId(taskId, pageable);
     }
 }

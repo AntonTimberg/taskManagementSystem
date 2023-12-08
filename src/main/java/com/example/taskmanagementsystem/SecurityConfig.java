@@ -11,19 +11,19 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        return http
-//                .csrf().disable()
-//                .logout()
-//                    .logoutUrl("/logout")
-//                    .logoutSuccessUrl("/login")
-//                    .invalidateHttpSession(true)
-//                    .deleteCookies("JSESSIONID")
-//                .and()
-//                .build();
-//
-//    }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf().disable()
+                .logout()
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/login")
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
+                .and()
+                .build();
+
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
