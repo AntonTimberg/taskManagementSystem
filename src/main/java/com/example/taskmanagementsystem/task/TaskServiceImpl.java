@@ -103,4 +103,14 @@ public class TaskServiceImpl implements TaskService {
             throw new RuntimeException("Invalid task priority: " + priority);
         }
     }
+
+    @Override
+    public List<Task> getTasksByAuthor(String authorEmail) {
+        return taskRepository.findByAuthorEmail(authorEmail);
+    }
+
+    @Override
+    public List<Task> getTasksByAssignee(String assigneeEmail) {
+        return taskRepository.findByAssigneeEmail(assigneeEmail);
+    }
 }

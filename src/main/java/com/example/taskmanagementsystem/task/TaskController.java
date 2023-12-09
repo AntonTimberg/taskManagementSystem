@@ -61,8 +61,6 @@ public class TaskController {
         return taskConverter.convert(taskService.createTask(task));
     }
 
-
-
     @GetMapping("/get/{id}")
     public TaskDto getTaskById(@PathVariable Long id) {
         Task task = taskService.getTaskById(id);
@@ -99,5 +97,25 @@ public class TaskController {
     public Page<CommentaryDto> getCommentsForTask(@PathVariable Long taskId, Pageable pageable) {
         Page<Commentary> commentPage = taskService.getCommentsForTask(taskId, pageable);
         return commentPage.map(commentConverter::convert);
+    }
+
+    @GetMapping("/byAuthor/{authorEmail}")
+    public List<TaskDto> getTasksByAuthor(@PathVariable String authorEmail) {
+        if (!userService.existsByEmail(authorEmail)) {
+            throw new RuntimeException("Author not found with email: " + authorEmail);
+        }
+        return taskService.getTasksByAuthor(authorEmail).stream()
+                .map(taskConverter::convert)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/byAssignee/{assigneeEmail}")
+    public List<TaskDto> getTasksByAssignee(@PathVariable String assigneeEmail) {
+        if (!userService.existsByEmail(assigneeEmail)) {
+            throw new RuntimeException("Assignee not found with email: " + assigneeEmail);
+        }
+        return taskService.getTasksByAssignee(assigneeEmail).stream()
+                .map(taskConverter::convert)
+                .collect(Collectors.toList());
     }
 }

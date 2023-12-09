@@ -35,8 +35,6 @@ public class CommentaryConverter {
         return comment;
     }
 
-
-
     public CommentaryDto convert(Commentary comment) {
         CommentaryDto commentDto = new CommentaryDto();
         commentDto.setContent(comment.getContent());
@@ -52,7 +50,6 @@ public class CommentaryConverter {
             String formattedDateTime = comment.getCreatedTime().format(formatter);
             commentDto.setCreatedTime(formattedDateTime);
         }
-
 
         return commentDto;
     }

@@ -10,7 +10,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepo userRepository;
 
+    @Override
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 }

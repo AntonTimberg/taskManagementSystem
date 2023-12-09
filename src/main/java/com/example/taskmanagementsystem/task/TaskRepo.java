@@ -19,4 +19,7 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
     Page<Task> findByAssignee(User assignee, Pageable pageable);
 
     Page<Task> findByAuthor(User author, Pageable pageable);
+
+    List<Task> findByAuthorEmail(String authorEmail);
+    List<Task> findByAssigneeEmail(String assigneeEmail);
 }
