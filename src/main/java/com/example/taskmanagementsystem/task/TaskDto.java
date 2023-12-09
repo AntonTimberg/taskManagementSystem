@@ -8,6 +8,7 @@ public class TaskDto {
     private String priority;
     private String assigneeEmail;
     private String authorEmail;
+    private String createdTime;
 
     public Long getId() {
         return id;
@@ -63,6 +64,14 @@ public class TaskDto {
 
     public void setAuthorEmail(String authorEmail) {
         this.authorEmail = authorEmail;
+    }
+
+    public String getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(String createdTime) {
+        this.createdTime = createdTime;
     }
 }
 

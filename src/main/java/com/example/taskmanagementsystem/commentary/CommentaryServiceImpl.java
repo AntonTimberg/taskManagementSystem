@@ -24,16 +24,19 @@ public class CommentaryServiceImpl implements CommentaryService {
 
     @Override
     public void deleteComment(Long commentId) {
-        Commentary comment = commentRepo.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentId));
+        Commentary comment = validateCommentId(commentId);
         commentRepo.delete(comment);
     }
 
     @Override
     public Commentary updateComment(Long commentId, String newContent) {
-        Commentary comment = commentRepo.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentId));
+        Commentary comment = validateCommentId(commentId);
         comment.setContent(newContent);
         return commentRepo.save(comment);
+    }
+
+    private Commentary validateCommentId(Long commentId) {
+        return commentRepo.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentId));
     }
 }

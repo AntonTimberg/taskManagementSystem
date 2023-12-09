@@ -11,8 +11,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-import javax.xml.stream.events.Comment;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,10 +25,17 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Title must not be blank")
+    @Size(max = 55, message = "Title must be less than 56 characters")
     private String title;
+
+    @NotBlank(message = "Description must not be blank")
+    @Size(max = 5000, message = "Description must be less than 5001 characters")
     private String description;
+
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
+
     @Enumerated(EnumType.STRING)
     private TaskPriority priority;
 
@@ -37,6 +47,14 @@ public class Task {
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Commentary> comments = new ArrayList<>();
+
+    private LocalDateTime createdTime;
+
+    @PrePersist
+    protected void onCreate() {
+        createdTime = LocalDateTime.now();
+    }
+
 
     public Long getId() {
         return id;
@@ -100,5 +118,13 @@ public class Task {
 
     public void setComments(List<Commentary> comments) {
         this.comments = comments;
+    }
+
+    public LocalDateTime getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(LocalDateTime createdTime) {
+        this.createdTime = createdTime;
     }
 }

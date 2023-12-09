@@ -1,8 +1,10 @@
 package com.example.taskmanagementsystem.commentary;
 
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.Size;
+
 
 public class CommentaryDto {
+    @Size(max = 616, message = "Comment content must be less than 617 characters")
     private String content;
     private Long taskId;
     private String authorEmail;

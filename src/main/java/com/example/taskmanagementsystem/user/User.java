@@ -8,6 +8,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "users")
@@ -16,9 +19,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Name must not be blank")
+    @Size(max = 26, message = "Name must be less than 27 characters")
     private String name;
+
+    @NotBlank(message = "Email must not be blank")
+    @Email(message = "Email should be valid")
     @Column(unique = true)
     private String email;
+
+    @NotBlank(message = "Password must not be blank")
     private String password;
 
     @Enumerated(EnumType.STRING)

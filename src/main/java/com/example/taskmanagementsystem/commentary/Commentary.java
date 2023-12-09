@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +23,7 @@ public class Commentary {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id")
     private Task task;
-
+    @Size(max = 616, message = "Comment content must be less than 617 characters")
     private String content;
 
     @ManyToOne

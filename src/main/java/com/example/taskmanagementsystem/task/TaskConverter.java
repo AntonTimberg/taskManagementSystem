@@ -4,11 +4,15 @@ import com.example.taskmanagementsystem.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.format.DateTimeFormatter;
+
 @Component
 public class TaskConverter {
 
     @Autowired
     private UserService userService;
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MM yyyy HH:mm");
+
 
     public TaskDto convert(Task task) {
         TaskDto dto = new TaskDto();
@@ -19,6 +23,11 @@ public class TaskConverter {
         dto.setPriority(task.getPriority().name());
         dto.setAssigneeEmail(task.getAssignee() != null ? task.getAssignee().getEmail() : null);
         dto.setAuthorEmail(task.getAuthor() != null ? task.getAuthor().getEmail() : null);
+
+        if (task.getCreatedTime() != null) {
+            dto.setCreatedTime(task.getCreatedTime().format(formatter));
+        }
+
         return dto;
     }
 

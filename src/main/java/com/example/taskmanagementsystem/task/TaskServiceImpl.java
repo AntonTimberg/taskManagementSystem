@@ -1,7 +1,6 @@
 package com.example.taskmanagementsystem.task;
 
 import com.example.taskmanagementsystem.commentary.Commentary;
-import com.example.taskmanagementsystem.commentary.CommentaryDto;
 import com.example.taskmanagementsystem.commentary.CommentaryRepo;
 import com.example.taskmanagementsystem.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,6 +25,7 @@ public class TaskServiceImpl implements TaskService {
     public Task updateTask(Long taskId, Task taskDetails) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with id " + taskId));
+
         if (taskDetails.getTitle() != null) {
             task.setTitle(taskDetails.getTitle());
         }
@@ -34,14 +33,17 @@ public class TaskServiceImpl implements TaskService {
             task.setDescription(taskDetails.getDescription());
         }
         if (taskDetails.getStatus() != null) {
+            validateTaskStatus(taskDetails.getStatus().name());
             task.setStatus(taskDetails.getStatus());
         }
         if (taskDetails.getPriority() != null) {
+            validateTaskPriority(taskDetails.getPriority().name());
             task.setPriority(taskDetails.getPriority());
         }
         if (taskDetails.getAssignee() != null) {
             task.setAssignee(taskDetails.getAssignee());
         }
+
         return taskRepository.save(task);
     }
 
@@ -84,5 +86,21 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with id " + taskId));
         return commentaryRepo.findByTaskId(taskId, pageable);
+    }
+
+    private void validateTaskStatus(String status) {
+        try {
+            TaskStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid task status: " + status);
+        }
+    }
+
+    private void validateTaskPriority(String priority) {
+        try {
+            TaskPriority.valueOf(priority.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid task priority: " + priority);
+        }
     }
 }
