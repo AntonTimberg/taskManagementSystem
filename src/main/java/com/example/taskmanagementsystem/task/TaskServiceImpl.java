@@ -109,12 +109,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> getTasksByAuthor(String authorEmail) {
-        return taskRepository.findByAuthorEmail(authorEmail);
+    public Page<Task> getTasksByAuthor(String authorEmail, Pageable pageable) {
+        return taskRepository.findByAuthorEmail(authorEmail, pageable);
     }
-
     @Override
-    public List<Task> getTasksByAssignee(String assigneeEmail) {
-        return taskRepository.findByAssigneeEmail(assigneeEmail);
+    public Page<Task> getTasksByAssignee(String assigneeEmail, Pageable pageable) {
+        return taskRepository.findByAssigneeEmail(assigneeEmail, pageable);
     }
 }

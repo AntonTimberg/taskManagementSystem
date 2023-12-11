@@ -5,7 +5,6 @@ import com.example.taskmanagementsystem.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 
 public interface TaskService {
     Task createTask(Task task);
@@ -24,6 +23,6 @@ public interface TaskService {
 
     Page<Commentary> getCommentsForTask(Long taskId, Pageable pageable);
 
-    List<Task> getTasksByAuthor(String authorEmail);
-    List<Task> getTasksByAssignee(String assigneeEmail);
+    Page<Task> getTasksByAuthor(String authorEmail, Pageable pageable);
+    Page<Task> getTasksByAssignee(String assigneeEmail, Pageable pageable);
 }

@@ -28,9 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -146,13 +144,12 @@ public class TaskController {
     @ApiResponse(responseCode = "200", description = "Задачи автора успешно получены",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskDto.class))))
     @ApiResponse(responseCode = "404", description = "Автор не найден")
-    public List<TaskDto> getTasksByAuthor(@PathVariable String authorEmail) {
+    public Page<TaskDto> getTasksByAuthor(@PathVariable String authorEmail, Pageable pageable) {
         if (!userService.existsByEmail(authorEmail)) {
             throw new RuntimeException("Author not found with email: " + authorEmail);
         }
-        return taskService.getTasksByAuthor(authorEmail).stream()
-                .map(taskConverter::convert)
-                .collect(Collectors.toList());
+        Page<Task> taskPage = taskService.getTasksByAuthor(authorEmail, pageable);
+        return taskPage.map(taskConverter::convert);
     }
 
     @GetMapping("/byAssignee/{assigneeEmail}")
@@ -160,12 +157,11 @@ public class TaskController {
     @ApiResponse(responseCode = "200", description = "Задачи исполнителя успешно получены",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskDto.class))))
     @ApiResponse(responseCode = "404", description = "Исполнитель не найден")
-    public List<TaskDto> getTasksByAssignee(@PathVariable String assigneeEmail) {
+    public Page<TaskDto> getTasksByAssignee(@PathVariable String assigneeEmail, Pageable pageable) {
         if (!userService.existsByEmail(assigneeEmail)) {
             throw new RuntimeException("Assignee not found with email: " + assigneeEmail);
         }
-        return taskService.getTasksByAssignee(assigneeEmail).stream()
-                .map(taskConverter::convert)
-                .collect(Collectors.toList());
+        Page<Task> taskPage = taskService.getTasksByAssignee(assigneeEmail, pageable);
+        return taskPage.map(taskConverter::convert);
     }
 }
