@@ -20,7 +20,7 @@ public interface TaskService {
 
     Task assignTask(Long taskId, User assignee);
 
-    List<Task> getAllTasks();
+    Page<Task> findTasks(String filter, Pageable pageable);
 
     Page<Commentary> getCommentsForTask(Long taskId, Pageable pageable);
 

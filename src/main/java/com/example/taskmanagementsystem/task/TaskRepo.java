@@ -8,13 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface TaskRepo extends JpaRepository<Task, Long> {
-    Page<Task> findByAuthorIdOrAssigneeId(Long authorId, Long assigneeId, Pageable pageable);
-
     List<Task> findByAssignee(User assignee);
 
     List<Task> findByAuthor(User author);
-
-    List<Task> findByStatus(TaskStatus status);
 
     Page<Task> findByAssignee(User assignee, Pageable pageable);
 
@@ -22,4 +18,6 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
 
     List<Task> findByAuthorEmail(String authorEmail);
     List<Task> findByAssigneeEmail(String assigneeEmail);
+    Page<Task> findByTitleContaining(String title, Pageable pageable);
+
 }

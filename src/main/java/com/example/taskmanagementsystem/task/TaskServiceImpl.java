@@ -77,8 +77,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public Page<Task> findTasks(String filter, Pageable pageable) {
+        if (filter == null || filter.isEmpty()) {
+            return taskRepository.findAll(pageable);
+        } else {
+            return taskRepository.findByTitleContaining(filter, pageable);
+        }
     }
 
     @Override

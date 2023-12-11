@@ -25,9 +25,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -48,10 +50,9 @@ public class TaskController {
     @Operation(summary = "Получить все задачи", description = "Возвращает список всех задач")
     @ApiResponse(responseCode = "200", description = "Успешное получение списка задач",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskDto.class))))
-    public List<TaskDto> getAllTasks() {
-        return taskService.getAllTasks().stream()
-                .map(taskConverter::convert)
-                .collect(Collectors.toList());
+    public Page<TaskDto> getTasks(@RequestParam(required = false) String filter, Pageable pageable) {
+        Page<Task> tasks = taskService.findTasks(filter, pageable);
+        return tasks.map(taskConverter::convert);
     }
 
     @PostMapping("/create")
@@ -112,7 +113,8 @@ public class TaskController {
             content = @Content(schema = @Schema(implementation = TaskDto.class)))
     @ApiResponse(responseCode = "400", description = "Неверный статус задачи")
     @ApiResponse(responseCode = "404", description = "Задача не найдена")
-    public TaskDto updateTaskStatus(@PathVariable Long id, @RequestBody String status) {
+    public TaskDto updateTaskStatus(@PathVariable Long id, @RequestBody Map<String, String> statusUpdate) {
+        String status = statusUpdate.get("status");
         Task task = taskService.updateTaskStatus(id, TaskStatus.valueOf(status.toUpperCase()));
         return taskConverter.convert(task);
     }
@@ -122,7 +124,8 @@ public class TaskController {
     @ApiResponse(responseCode = "200", description = "Задача успешно назначена пользователю",
             content = @Content(schema = @Schema(implementation = TaskDto.class)))
     @ApiResponse(responseCode = "404", description = "Задача или пользователь не найдены")
-    public TaskDto assignTask(@PathVariable Long id, @RequestBody String assigneeEmail) {
+    public TaskDto assignTask(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String assigneeEmail = body.get("email");
         User assignee = userService.getUserByEmail(assigneeEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + assigneeEmail));
         Task task = taskService.assignTask(id, assignee);

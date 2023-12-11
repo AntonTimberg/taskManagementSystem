@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/tasks/{taskId}/comments")
+@RequestMapping("/api/comments")
 public class CommentaryController {
     @Autowired
     private CommentaryService commentService;
     @Autowired
     private CommentaryConverter commentConverter;
 
-    @PostMapping
+    @PostMapping("/{taskId}")
     @Operation(summary = "Создать комментарий", description = "Создает новый комментарий для задачи")
     @ApiResponse(responseCode = "200", description = "Комментарий успешно создан",
             content = @Content(schema = @Schema(implementation = CommentaryDto.class)))
