@@ -1,13 +1,23 @@
 package com.example.taskmanagementsystem.task;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class TaskDto {
+    @Schema(description = "идентификатор задачи")
     private Long id;
+    @Schema(description = "название задачи")
     private String title;
+    @Schema(description = "описание задачи")
     private String description;
+    @Schema(description = "статус задачи")
     private String status;
+    @Schema(description = "приоритет задачи")
     private String priority;
+    @Schema(description = "e-mail исполнителя")
     private String assigneeEmail;
+    @Schema(description = "e-mail автора")
     private String authorEmail;
+    @Schema(description = "время создания задачи")
     private String createdTime;
 
     public Long getId() {

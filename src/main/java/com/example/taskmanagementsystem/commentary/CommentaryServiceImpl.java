@@ -2,6 +2,7 @@ package com.example.taskmanagementsystem.commentary;
 
 import com.example.taskmanagementsystem.task.Task;
 import com.example.taskmanagementsystem.task.TaskRepo;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,21 +23,17 @@ public class CommentaryServiceImpl implements CommentaryService {
         return commentRepo.save(comment);
     }
 
-    @Override
     public void deleteComment(Long commentId) {
-        Commentary comment = validateCommentId(commentId);
+        Commentary comment = commentRepo.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("Comment not found with id: " + commentId));
         commentRepo.delete(comment);
     }
 
-    @Override
-    public Commentary updateComment(Long commentId, String newContent) {
-        Commentary comment = validateCommentId(commentId);
-        comment.setContent(newContent);
-        return commentRepo.save(comment);
-    }
+    public Commentary updateComment(Long commentId, CommentaryDto commentDto) {
+        Commentary existingComment = commentRepo.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("Comment not found with id: " + commentId));
 
-    private Commentary validateCommentId(Long commentId) {
-        return commentRepo.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentId));
+        existingComment.setContent(commentDto.getContent());
+        return commentRepo.save(existingComment);
     }
 }

@@ -15,6 +15,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf().disable()
+                .authorizeRequests()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .and()
                 .logout()
                     .logoutUrl("/logout")
                     .logoutSuccessUrl("/login")

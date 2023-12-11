@@ -1,9 +1,9 @@
 package com.example.taskmanagementsystem.commentary;
 
 public interface CommentaryService {
-    public Commentary createComment(Long taskId, Commentary comment);
+    Commentary createComment(Long taskId, Commentary comment);
 
-    public void deleteComment(Long commentId);
+    void deleteComment(Long commentId);
 
-    public Commentary updateComment(Long commentId, String newContent);
+    Commentary updateComment(Long commentId, CommentaryDto commentDto);
 }

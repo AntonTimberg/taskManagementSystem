@@ -5,6 +5,12 @@ import com.example.taskmanagementsystem.commentary.CommentaryConverter;
 import com.example.taskmanagementsystem.commentary.CommentaryDto;
 import com.example.taskmanagementsystem.user.User;
 import com.example.taskmanagementsystem.user.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,8 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @RestController
 @RequestMapping("/api/tasks")
+@Tag(name = "Tasks", description = "api для работы с задачами")
 public class TaskController {
     @Autowired
     private TaskService taskService;
@@ -37,6 +45,9 @@ public class TaskController {
     private CommentaryConverter commentConverter;
 
     @GetMapping("/getAll")
+    @Operation(summary = "Получить все задачи", description = "Возвращает список всех задач")
+    @ApiResponse(responseCode = "200", description = "Успешное получение списка задач",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskDto.class))))
     public List<TaskDto> getAllTasks() {
         return taskService.getAllTasks().stream()
                 .map(taskConverter::convert)
@@ -44,6 +55,10 @@ public class TaskController {
     }
 
     @PostMapping("/create")
+    @Operation(summary = "Создание задачи", description = "Создает новую задачу с данными, предоставленными в теле запроса")
+    @ApiResponse(responseCode = "201", description = "Задача успешно создана",
+            content = @Content(schema = @Schema(implementation = TaskDto.class)))
+    @ApiResponse(responseCode = "400", description = "Неверные данные задачи")
     public TaskDto createTask(@RequestBody TaskDto taskDto) {
         Task task = taskConverter.convert(taskDto);
 
@@ -61,31 +76,52 @@ public class TaskController {
         return taskConverter.convert(taskService.createTask(task));
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
+    @Operation(summary = "Получить задачу по ID", description = "Возвращает задачу по указанному ID")
+    @ApiResponse(responseCode = "200", description = "Задача найдена",
+            content = @Content(schema = @Schema(implementation = TaskDto.class)))
+    @ApiResponse(responseCode = "404", description = "Задача не найдена")
     public TaskDto getTaskById(@PathVariable Long id) {
         Task task = taskService.getTaskById(id);
         return taskConverter.convert(task);
     }
 
     @PutMapping("/update/{id}")
+    @Operation(summary = "Обновить задачу", description = "Обновляет задачу с указанным ID данными из тела запроса")
+    @ApiResponse(responseCode = "200", description = "Задача успешно обновлена",
+            content = @Content(schema = @Schema(implementation = TaskDto.class)))
+    @ApiResponse(responseCode = "400", description = "Неверные данные для обновления задачи")
+    @ApiResponse(responseCode = "404", description = "Задача для обновления не найдена")
     public TaskDto updateTask(@PathVariable Long id, @RequestBody TaskDto taskDto) {
         Task updatedTask = taskService.updateTask(id, taskConverter.convert(taskDto));
         return taskConverter.convert(updatedTask);
     }
 
     @DeleteMapping("/delete/{id}")
+    @Operation(summary = "Удалить задачу", description = "Удаляет задачу по указанному ID")
+    @ApiResponse(responseCode = "200", description = "Задача успешно удалена")
+    @ApiResponse(responseCode = "404", description = "Задача для удаления не найдена")
     public ResponseEntity<?> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/status/{id}")
+    @Operation(summary = "Обновить статус задачи", description = "Обновляет статус задачи с указанным ID")
+    @ApiResponse(responseCode = "200", description = "Статус задачи успешно обновлен",
+            content = @Content(schema = @Schema(implementation = TaskDto.class)))
+    @ApiResponse(responseCode = "400", description = "Неверный статус задачи")
+    @ApiResponse(responseCode = "404", description = "Задача не найдена")
     public TaskDto updateTaskStatus(@PathVariable Long id, @RequestBody String status) {
         Task task = taskService.updateTaskStatus(id, TaskStatus.valueOf(status.toUpperCase()));
         return taskConverter.convert(task);
     }
 
     @PatchMapping("/assignee/{id}")
+    @Operation(summary = "Назначить задачу пользователю", description = "Назначает задачу с указанным ID пользователю с заданным email")
+    @ApiResponse(responseCode = "200", description = "Задача успешно назначена пользователю",
+            content = @Content(schema = @Schema(implementation = TaskDto.class)))
+    @ApiResponse(responseCode = "404", description = "Задача или пользователь не найдены")
     public TaskDto assignTask(@PathVariable Long id, @RequestBody String assigneeEmail) {
         User assignee = userService.getUserByEmail(assigneeEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + assigneeEmail));
@@ -94,12 +130,19 @@ public class TaskController {
     }
 
     @GetMapping("/{taskId}/getComments")
+    @Operation(summary = "Получить комментарии задачи", description = "Возвращает список комментариев для задачи с указанным ID")
+    @ApiResponse(responseCode = "200", description = "Комментарии успешно получены",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentaryDto.class))))
     public Page<CommentaryDto> getCommentsForTask(@PathVariable Long taskId, Pageable pageable) {
         Page<Commentary> commentPage = taskService.getCommentsForTask(taskId, pageable);
         return commentPage.map(commentConverter::convert);
     }
 
     @GetMapping("/byAuthor/{authorEmail}")
+    @Operation(summary = "Получить задачи по автору", description = "Возвращает список задач, созданных пользователем с указанным email")
+    @ApiResponse(responseCode = "200", description = "Задачи автора успешно получены",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskDto.class))))
+    @ApiResponse(responseCode = "404", description = "Автор не найден")
     public List<TaskDto> getTasksByAuthor(@PathVariable String authorEmail) {
         if (!userService.existsByEmail(authorEmail)) {
             throw new RuntimeException("Author not found with email: " + authorEmail);
@@ -110,6 +153,10 @@ public class TaskController {
     }
 
     @GetMapping("/byAssignee/{assigneeEmail}")
+    @Operation(summary = "Получить задачи по исполнителю", description = "Возвращает список задач, назначенных пользователю с указанным email")
+    @ApiResponse(responseCode = "200", description = "Задачи исполнителя успешно получены",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskDto.class))))
+    @ApiResponse(responseCode = "404", description = "Исполнитель не найден")
     public List<TaskDto> getTasksByAssignee(@PathVariable String assigneeEmail) {
         if (!userService.existsByEmail(assigneeEmail)) {
             throw new RuntimeException("Assignee not found with email: " + assigneeEmail);

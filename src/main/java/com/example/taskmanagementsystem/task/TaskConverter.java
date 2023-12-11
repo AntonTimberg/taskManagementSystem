@@ -11,7 +11,7 @@ public class TaskConverter {
 
     @Autowired
     private UserService userService;
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MM yyyy HH:mm");
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.mm.yyyy HH:mm");
 
 
     public TaskDto convert(Task task) {

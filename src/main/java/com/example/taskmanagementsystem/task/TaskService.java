@@ -22,7 +22,7 @@ public interface TaskService {
 
     List<Task> getAllTasks();
 
-    public Page<Commentary> getCommentsForTask(Long taskId, Pageable pageable);
+    Page<Commentary> getCommentsForTask(Long taskId, Pageable pageable);
 
     List<Task> getTasksByAuthor(String authorEmail);
     List<Task> getTasksByAssignee(String assigneeEmail);

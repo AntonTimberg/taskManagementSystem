@@ -22,9 +22,6 @@ public class CommentaryConverter {
         Commentary comment = new Commentary();
         comment.setContent(commentDto.getContent());
 
-        Task task = taskService.getTaskById(commentDto.getTaskId());
-        comment.setTask(task);
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -38,7 +35,7 @@ public class CommentaryConverter {
     public CommentaryDto convert(Commentary comment) {
         CommentaryDto commentDto = new CommentaryDto();
         commentDto.setContent(comment.getContent());
-        commentDto.setTaskId(comment.getTask().getId());
+
         if (comment.getAuthor() != null) {
             commentDto.setAuthorEmail(comment.getAuthor().getEmail());
         } else {
@@ -46,7 +43,7 @@ public class CommentaryConverter {
         }
 
         if (comment.getCreatedTime() != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd mm yyyy HH:mm");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
             String formattedDateTime = comment.getCreatedTime().format(formatter);
             commentDto.setCreatedTime(formattedDateTime);
         }

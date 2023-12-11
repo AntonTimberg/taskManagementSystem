@@ -1,5 +1,9 @@
 package com.example.taskmanagementsystem.commentary;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,25 +23,34 @@ public class CommentaryController {
     private CommentaryConverter commentConverter;
 
     @PostMapping
+    @Operation(summary = "Создать комментарий", description = "Создает новый комментарий для задачи")
+    @ApiResponse(responseCode = "200", description = "Комментарий успешно создан",
+            content = @Content(schema = @Schema(implementation = CommentaryDto.class)))
     public CommentaryDto createComment(@PathVariable Long taskId, @RequestBody CommentaryDto commentDto) {
         if (taskId == null) {
             throw new IllegalArgumentException("Task ID must not be null");
         }
-        commentDto.setTaskId(taskId);
         Commentary comment = commentConverter.convert(commentDto);
         Commentary createdComment = commentService.createComment(taskId, comment);
         return commentConverter.convert(createdComment);
     }
 
-    @DeleteMapping("/delete/{commentId}")
+    @DeleteMapping("/{commentId}")
+    @Operation(summary = "Удалить комментарий", description = "Удаляет комментарий по его идентификатору")
+    @ApiResponse(responseCode = "200", description = "Комментарий успешно удален")
     public ResponseEntity<?> deleteComment(@PathVariable Long commentId) {
         commentService.deleteComment(commentId);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/update/{commentId}")
-    public CommentaryDto updateComment(@PathVariable Long commentId, @RequestBody String newContent) {
-        Commentary updatedComment = commentService.updateComment(commentId, newContent);
+    @PutMapping("/{commentId}")
+    @Operation(summary = "Обновить комментарий", description = "Обновляет содержимое комментария по его идентификатору")
+    @ApiResponse(responseCode = "200", description = "Комментарий успешно обновлен",
+            content = @Content(schema = @Schema(implementation = CommentaryDto.class)))
+    @ApiResponse(responseCode = "404", description = "Комментарий не найден")
+    @ApiResponse(responseCode = "400", description = "Неверный запрос или данные комментария")
+    public CommentaryDto updateComment(@PathVariable Long commentId, @RequestBody CommentaryDto commentaryDto) {
+        Commentary updatedComment = commentService.updateComment(commentId, commentaryDto);
         return commentConverter.convert(updatedComment);
     }
 }
