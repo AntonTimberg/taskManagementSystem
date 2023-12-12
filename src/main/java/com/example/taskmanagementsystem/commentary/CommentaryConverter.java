@@ -1,6 +1,5 @@
 package com.example.taskmanagementsystem.commentary;
 
-import com.example.taskmanagementsystem.task.Task;
 import com.example.taskmanagementsystem.task.TaskService;
 import com.example.taskmanagementsystem.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,7 @@ import java.time.format.DateTimeFormatter;
 public class CommentaryConverter {
     @Autowired
     private UserService userService;
-    @Autowired
-    private TaskService taskService;
+
 
     public Commentary convert(CommentaryDto commentDto) {
         Commentary comment = new Commentary();
