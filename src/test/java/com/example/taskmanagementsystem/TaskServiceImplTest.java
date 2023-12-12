@@ -106,6 +106,5 @@ public class TaskServiceImplTest {
         assertEquals("Updated Title", result.getTitle());
         assertEquals("Updated Description", result.getDescription());
         verify(taskRepository).save(any(Task.class));
-
     }
 }
