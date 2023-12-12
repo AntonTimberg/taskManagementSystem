@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Map;
 
 
@@ -113,8 +114,19 @@ public class TaskController {
     @ApiResponse(responseCode = "404", description = "Задача не найдена")
     public TaskDto updateTaskStatus(@PathVariable Long id, @RequestBody Map<String, String> statusUpdate) {
         String status = statusUpdate.get("status");
-        Task task = taskService.updateTaskStatus(id, TaskStatus.valueOf(status.toUpperCase()));
-        return taskConverter.convert(task);
+        Task task = taskService.getTaskById(id);
+
+        String currentUserEmail = ((UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
+        if (!currentUserEmail.equals(task.getAuthor().getEmail()) && !currentUserEmail.equals(task.getAssignee().getEmail())) {
+            try {
+                throw new AccessDeniedException("Only author or assignee can update task status");
+            } catch (AccessDeniedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return taskConverter.convert(taskService.updateTaskStatus(id, TaskStatus.valueOf(status.toUpperCase())));
     }
 
     @PatchMapping("/assignee/{id}")

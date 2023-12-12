@@ -6,7 +6,11 @@ import com.example.taskmanagementsystem.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.nio.file.AccessDeniedException;
 
 
 @Service
@@ -24,6 +28,16 @@ public class TaskServiceImpl implements TaskService {
     public Task updateTask(Long taskId, Task taskDetails) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with id " + taskId));
+
+        String currentUserEmail = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
+        if (!currentUserEmail.equals(task.getAuthor().getEmail())) {
+            try {
+                throw new AccessDeniedException("Only author can update the task");
+            } catch (AccessDeniedException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         if (taskDetails.getTitle() != null) {
             task.setTitle(taskDetails.getTitle());
@@ -56,6 +70,16 @@ public class TaskServiceImpl implements TaskService {
     public void deleteTask(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with id " + taskId));
+
+        String currentUserEmail = ((UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        if (!currentUserEmail.equals(task.getAuthor().getEmail())) {
+            try {
+                throw new AccessDeniedException("Only author can delete the task");
+            } catch (AccessDeniedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         taskRepository.delete(task);
     }
 

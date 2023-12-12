@@ -17,7 +17,9 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Task {
@@ -46,7 +48,7 @@ public class Task {
     private User assignee;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Commentary> comments = new ArrayList<>();
+    private Set<Commentary> commentaries = new HashSet<>();
 
     private LocalDateTime createdTime;
 
@@ -112,12 +114,12 @@ public class Task {
         this.assignee = assignee;
     }
 
-    public List<Commentary> getComments() {
-        return comments;
+    public Set<Commentary> getCommentaries() {
+        return commentaries;
     }
 
-    public void setComments(List<Commentary> comments) {
-        this.comments = comments;
+    public void setCommentaries(Set<Commentary> commentaries) {
+        this.commentaries = commentaries;
     }
 
     public LocalDateTime getCreatedTime() {

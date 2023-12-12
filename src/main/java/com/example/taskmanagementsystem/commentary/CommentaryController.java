@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,7 +41,9 @@ public class CommentaryController {
     @Operation(summary = "Удалить комментарий", description = "Удаляет комментарий по его идентификатору")
     @ApiResponse(responseCode = "200", description = "Комментарий успешно удален")
     public ResponseEntity<?> deleteComment(@PathVariable Long commentId) {
-        commentService.deleteComment(commentId);
+        String currentUserEmail = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
+        commentService.deleteComment(commentId, currentUserEmail);
         return ResponseEntity.ok().build();
     }
 
@@ -50,7 +54,9 @@ public class CommentaryController {
     @ApiResponse(responseCode = "404", description = "Комментарий не найден")
     @ApiResponse(responseCode = "400", description = "Неверный запрос или данные комментария")
     public CommentaryDto updateComment(@PathVariable Long commentId, @RequestBody CommentaryDto commentaryDto) {
-        Commentary updatedComment = commentService.updateComment(commentId, commentaryDto);
+        String currentUserEmail = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
+        Commentary updatedComment = commentService.updateComment(commentId, commentaryDto, currentUserEmail);
         return commentConverter.convert(updatedComment);
     }
 }
