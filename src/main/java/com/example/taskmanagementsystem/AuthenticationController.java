@@ -1,5 +1,7 @@
 package com.example.taskmanagementsystem;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,22 +26,25 @@ public class AuthenticationController {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
+    private static final Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
+
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+        logger.info("Authentication request for: " + authenticationRequest.getUsername());
 
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
+                    new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), new String(authenticationRequest.getPassword()))
             );
         } catch (BadCredentialsException e) {
+            logger.error("Authentication failed for user: " + authenticationRequest.getUsername(), e);
             throw new Exception("Некорректные учетные данные", e);
         }
 
-        final UserDetails userDetails = userDetailsService
-                .loadUserByUsername(authenticationRequest.getUsername());
-
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String jwt = jwtTokenUtil.generateToken(userDetails);
 
+        logger.info("JWT Token generated for user: " + authenticationRequest.getUsername());
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
 }
