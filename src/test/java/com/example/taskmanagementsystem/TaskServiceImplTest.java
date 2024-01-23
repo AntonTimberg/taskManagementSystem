@@ -1,7 +1,9 @@
 package com.example.taskmanagementsystem;
 
 import com.example.taskmanagementsystem.commentary.Commentary;
+import com.example.taskmanagementsystem.commentary.CommentaryDto;
 import com.example.taskmanagementsystem.commentary.CommentaryRepo;
+import com.example.taskmanagementsystem.commentary.CommentaryServiceImpl;
 import com.example.taskmanagementsystem.task.Task;
 import com.example.taskmanagementsystem.task.TaskRepo;
 import com.example.taskmanagementsystem.task.TaskServiceImpl;
@@ -20,13 +22,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.awt.print.Pageable;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -46,6 +47,9 @@ public class TaskServiceImplTest {
 
     @InjectMocks
     private TaskServiceImpl taskService;
+
+    @InjectMocks
+    private CommentaryServiceImpl commentaryService;
 
     @Test
     public void testCreateTask(){
@@ -235,5 +239,102 @@ public class TaskServiceImplTest {
         assertNotNull(result);
         assertEquals(expectedPage, result);
         verify(taskRepository).findByAssigneeEmail(assigneeEmail, pageable);
+    }
+
+    @Test
+    public void testCreateComment_TaskExists() {
+        Long taskId = 1L;
+        Commentary comment = new Commentary();
+        comment.setContent("Test comment");
+        Task task = new Task();
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
+        when(commentaryRepo.save(any(Commentary.class))).thenReturn(comment);
+
+        Commentary createdComment = commentaryService.createComment(taskId, comment);
+
+        assertNotNull(createdComment);
+        assertEquals("Test comment", createdComment.getContent());
+        verify(commentaryRepo).save(comment);
+    }
+
+    @Test
+    public void testCreateComment_TaskDoesNotExist() {
+        Long taskId = 1L;
+        Commentary comment = new Commentary();
+        when(taskRepository.findById(taskId)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> {
+            commentaryService.createComment(taskId, comment);
+        });
+    }
+
+    @Test
+    public void testDeleteComment_AuthorizedUser() {
+        Long commentId = 1L;
+        String currentUserEmail = "author@example.com";
+        Commentary comment = new Commentary();
+        User author = new User();
+        author.setEmail(currentUserEmail);
+        comment.setAuthor(author);
+
+        when(commentaryRepo.findById(commentId)).thenReturn(Optional.of(comment));
+
+        commentaryService.deleteComment(commentId, currentUserEmail);
+
+        verify(commentaryRepo).delete(comment);
+    }
+
+    @Test
+    public void testDeleteComment_UnauthorizedUser() {
+        Long commentId = 1L;
+        String currentUserEmail = "unauthorized@example.com";
+        Commentary comment = new Commentary();
+        User author = new User();
+        author.setEmail("author@example.com");
+        comment.setAuthor(author);
+
+        when(commentaryRepo.findById(commentId)).thenReturn(Optional.of(comment));
+
+        assertThrows(RuntimeException.class, () -> {
+            commentaryService.deleteComment(commentId, currentUserEmail);
+        });
+    }
+
+    @Test
+    public void testUpdateComment_AuthorizedUser() {
+        Long commentId = 1L;
+        String currentUserEmail = "author@example.com";
+        Commentary existingComment = new Commentary();
+        User author = new User();
+        author.setEmail(currentUserEmail);
+        existingComment.setAuthor(author);
+        CommentaryDto commentDto = new CommentaryDto();
+        commentDto.setContent("Updated content");
+
+        when(commentaryRepo.findById(commentId)).thenReturn(Optional.of(existingComment));
+        when(commentaryRepo.save(any(Commentary.class))).thenReturn(existingComment);
+
+        Commentary updatedComment = commentaryService.updateComment(commentId, commentDto, currentUserEmail);
+
+        assertEquals("Updated content", updatedComment.getContent());
+        verify(commentaryRepo).save(existingComment);
+    }
+
+    @Test
+    public void testUpdateComment_UnauthorizedUser() {
+        Long commentId = 1L;
+        String currentUserEmail = "unauthorized@example.com";
+        Commentary existingComment = new Commentary();
+        User author = new User();
+        author.setEmail("author@example.com");
+        existingComment.setAuthor(author);
+        CommentaryDto commentDto = new CommentaryDto();
+
+        when(commentaryRepo.findById(commentId)).thenReturn(Optional.of(existingComment));
+
+        assertThrows(RuntimeException.class, () -> {
+            commentaryService.updateComment(commentId, commentDto, currentUserEmail);
+        });
     }
 }
